@@ -1,56 +1,219 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-// Desafio Tetris Stack
+// ============================================================================
+//                           PROJETO Tetris Stack 
+// ============================================================================
+// Matrícula: 20250212488
+// Faculdade: Estácio
+// Aluno: Ângelo Oliveira dos Santos
+// Cuso: Análise e desenvolvimento de sistemas
+// Desafio: nível novato
 // Tema 3 - Integração de Fila e Pilha
-// Este código inicial serve como base para o desenvolvimento do sistema de controle de peças.
-// Use as instruções de cada nível para desenvolver o desafio.
+// ============================================================================
+
+// Constantes para definir o tamanho da fila
+#define TAMANHO_FILA 5
+#define NUM_TIPOS_PECAS 4
+
+// Estrutura que representa uma peça do jogo
+typedef struct {
+    char nome;  // Tipo da peça: 'I', 'O', 'T', 'L'
+    int id;     // Identificador único da peça
+} Peca;
+
+// Estrutura da fila circular
+typedef struct {
+    Peca pecas[TAMANHO_FILA];  // Array para armazenar as peças
+    int frente;                // Índice da frente da fila
+    int tras;                  // Índice do final da fila
+    int tamanho;               // Número atual de elementos na fila
+    int contador_id;           // Contador para gerar IDs únicos
+} FilaPecas;
+
+// Protótipos das funções
+void inicializarFila(FilaPecas *fila);
+Peca gerarPeca(FilaPecas *fila);
+int enqueue(FilaPecas *fila, Peca peca);
+Peca dequeue(FilaPecas *fila);
+int filaCheia(FilaPecas *fila);
+int filaVazia(FilaPecas *fila);
+void exibirFila(FilaPecas *fila);
+void exibirMenu();
 
 int main() {
-
-    // 🧩 Nível Novato: Fila de Peças Futuras
-    //
-    // - Crie uma struct Peca com os campos: tipo (char) e id (int).
-    // - Implemente uma fila circular com capacidade para 5 peças.
-    // - Crie funções como inicializarFila(), enqueue(), dequeue(), filaCheia(), filaVazia().
-    // - Cada peça deve ser gerada automaticamente com um tipo aleatório e id sequencial.
-    // - Exiba a fila após cada ação com uma função mostrarFila().
-    // - Use um menu com opções como:
-    //      1 - Jogar peça (remover da frente)
-    //      0 - Sair
-    // - A cada remoção, insira uma nova peça ao final da fila.
-
-
-
-    // 🧠 Nível Aventureiro: Adição da Pilha de Reserva
-    //
-    // - Implemente uma pilha linear com capacidade para 3 peças.
-    // - Crie funções como inicializarPilha(), push(), pop(), pilhaCheia(), pilhaVazia().
-    // - Permita enviar uma peça da fila para a pilha (reserva).
-    // - Crie um menu com opção:
-    //      2 - Enviar peça da fila para a reserva (pilha)
-    //      3 - Usar peça da reserva (remover do topo da pilha)
-    // - Exiba a pilha junto com a fila após cada ação com mostrarPilha().
-    // - Mantenha a fila sempre com 5 peças (repondo com gerarPeca()).
-
-
-    // 🔄 Nível Mestre: Integração Estratégica entre Fila e Pilha
-    //
-    // - Implemente interações avançadas entre as estruturas:
-    //      4 - Trocar a peça da frente da fila com o topo da pilha
-    //      5 - Trocar os 3 primeiros da fila com as 3 peças da pilha
-    // - Para a opção 4:
-    //      Verifique se a fila não está vazia e a pilha tem ao menos 1 peça.
-    //      Troque os elementos diretamente nos arrays.
-    // - Para a opção 5:
-    //      Verifique se a pilha tem exatamente 3 peças e a fila ao menos 3.
-    //      Use a lógica de índice circular para acessar os primeiros da fila.
-    // - Sempre valide as condições antes da troca e informe mensagens claras ao usuário.
-    // - Use funções auxiliares, se quiser, para modularizar a lógica de troca.
-    // - O menu deve ficar assim:
-    //      4 - Trocar peça da frente com topo da pilha
-    //      5 - Trocar 3 primeiros da fila com os 3 da pilha
-
-
+    FilaPecas fila;
+    int opcao;
+    
+    // Inicializa a fila com peças
+    inicializarFila(&fila);
+    
+    printf("=== Tetris Stack - Fila de Pecas Futuras ===\n\n");
+    
+    do {
+        // Exibe o estado atual da fila
+        printf("Estado atual da fila:\n");
+        exibirFila(&fila);
+        
+        // Exibe o menu de opções
+        exibirMenu();
+        
+        // Lê a opção do usuário
+        printf("\nDigite sua opcao: ");
+        scanf("%d", &opcao);
+        
+        // Processa a opção escolhida
+        switch(opcao) {
+            case 0:
+                printf("Saindo do jogo...\n");
+                break;
+                
+            case 1:
+                // Jogar peça (dequeue)
+                if (!filaVazia(&fila)) {
+                    Peca pecaJogada = dequeue(&fila);
+                    printf("Peca jogada: [%c %d]\n", pecaJogada.nome, pecaJogada.id);
+                } else {
+                    printf("Erro: Nao ha pecas para jogar!\n");
+                }
+                break;
+                
+            case 2:
+                // Inserir nova peça (enqueue)
+                if (!filaCheia(&fila)) {
+                    Peca novaPeca = gerarPeca(&fila);
+                    if (enqueue(&fila, novaPeca)) {
+                        printf("Nova peca adicionada: [%c %d]\n", novaPeca.nome, novaPeca.id);
+                    } else {
+                        printf("Erro: Nao foi possivel adicionar a peca!\n");
+                    }
+                } else {
+                    printf("Erro: Fila cheia! Jogue uma peca antes de adicionar nova.\n");
+                }
+                break;
+                
+            default:
+                printf("Opcao invalida! Tente novamente.\n");
+                break;
+        }
+        
+        printf("\n");
+        
+    } while (opcao != 0);
+    
     return 0;
 }
 
+/**
+ * Inicializa a fila com peças geradas automaticamente
+ */
+void inicializarFila(FilaPecas *fila) {
+    fila->frente = 0;
+    fila->tras = -1;
+    fila->tamanho = 0;
+    fila->contador_id = 0;
+    
+    // Preenche a fila inicial com peças
+    for (int i = 0; i < TAMANHO_FILA; i++) {
+        Peca novaPeca = gerarPeca(fila);
+        enqueue(fila, novaPeca);
+    }
+}
+
+/**
+ * Gera uma nova peça com tipo aleatório e ID único
+ */
+Peca gerarPeca(FilaPecas *fila) {
+    Peca novaPeca;
+    
+    // Tipos de peças disponíveis
+    char tipos[NUM_TIPOS_PECAS] = {'I', 'O', 'T', 'L'};
+    
+    // Seleciona um tipo aleatório
+    int indiceTipo = rand() % NUM_TIPOS_PECAS;
+    novaPeca.nome = tipos[indiceTipo];
+    
+    // Atribui um ID único e incrementa o contador
+    novaPeca.id = fila->contador_id++;
+    
+    return novaPeca;
+}
+
+/**
+ * Adiciona uma peça ao final da fila (enqueue)
+ * Retorna 1 em caso de sucesso, 0 em caso de falha
+ */
+int enqueue(FilaPecas *fila, Peca peca) {
+    if (filaCheia(fila)) {
+        return 0; // Fila cheia
+    }
+    
+    // Avança o índice do final (com wrap-around)
+    fila->tras = (fila->tras + 1) % TAMANHO_FILA;
+    fila->pecas[fila->tras] = peca;
+    fila->tamanho++;
+    
+    return 1; // Sucesso
+}
+
+/**
+ * Remove e retorna a peça da frente da fila (dequeue)
+ */
+Peca dequeue(FilaPecas *fila) {
+    Peca pecaVazia = {' ', -1}; // Peça vazia para retorno em caso de erro
+    
+    if (filaVazia(fila)) {
+        return pecaVazia;
+    }
+    
+    // Obtém a peça da frente
+    Peca peca = fila->pecas[fila->frente];
+    
+    // Avança o índice da frente (com wrap-around)
+    fila->frente = (fila->frente + 1) % TAMANHO_FILA;
+    fila->tamanho--;
+    
+    return peca;
+}
+
+/**
+ * Verifica se a fila está cheia
+ */
+int filaCheia(FilaPecas *fila) {
+    return fila->tamanho == TAMANHO_FILA;
+}
+
+/**
+ * Verifica se a fila está vazia
+ */
+int filaVazia(FilaPecas *fila) {
+    return fila->tamanho == 0;
+}
+
+/**
+ * Exibe o estado atual da fila
+ */
+void exibirFila(FilaPecas *fila) {
+    if (filaVazia(fila)) {
+        printf("Fila vazia!\n");
+        return;
+    }
+    
+    // Percorre a fila a partir da frente
+    int indice = fila->frente;
+    for (int i = 0; i < fila->tamanho; i++) {
+        printf("[%c %d] ", fila->pecas[indice].nome, fila->pecas[indice].id);
+        indice = (indice + 1) % TAMANHO_FILA;
+    }
+    printf("\n");
+}
+
+/**
+ * Exibe o menu de opções disponíveis
+ */
+void exibirMenu() {
+    printf("\nOpcoes disponiveis:\n");
+    printf("1 - Jogar peca (dequeue)\n");
+    printf("2 - Inserir nova peca (enqueue)\n");
+    printf("0 - Sair\n");
+}
